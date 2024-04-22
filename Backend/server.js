@@ -114,7 +114,7 @@ let simulationShouldContinue = true;
 
 let globalCpu = null;
 
-
+// COMPILE AND RUN
 async function compileAndRunCode(sketch) {
 
     const MHZ = 16000000;
@@ -200,6 +200,7 @@ function sendPinStates() {
     });
     }
 
+// STOP THE RUNNING SIMULATION
 function stopSimulation() {
     console.log("Stop");
     if (simulationRunning) {

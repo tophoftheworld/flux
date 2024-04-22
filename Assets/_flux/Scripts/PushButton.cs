@@ -1,5 +1,5 @@
 using UnityEngine;
-using UnityEngine.UI; // Required for accessing Button component
+using UnityEngine.UI;
 
 public class PushButton : MonoBehaviour
 {

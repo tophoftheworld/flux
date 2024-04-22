@@ -25,6 +25,7 @@ using WebSocketSharp;
         private string pendingArduinoCode;
 
 void Update() {
+    // Update Arduino IDE input field using the placeholder code received from the backend
     if (!string.IsNullOrEmpty(pendingArduinoCode)) {
         arduinoCodeInputField.text = pendingArduinoCode;
         pendingArduinoCode = null;  // Clear the pending code once updated
@@ -69,10 +70,12 @@ void Update() {
             }
         }
 
+        // Process message receive from websocket
         private void ProcessWebSocketMessage(string message)
         {
             ServerMessage serverMessage = JsonUtility.FromJson<ServerMessage>(message);
 
+            // Update LEDs based on output received from pins
             if (serverMessage.type == "pin-states")
             {
                 // Debug.Log(serverMessage.pin13);
@@ -81,13 +84,14 @@ void Update() {
                 UpdateLedIndicator(ledIndicatorPin6, IntToBool(serverMessage.pin6));
                 UpdateLedIndicator(ledIndicatorBuiltIn, IntToBool(serverMessage.pin13));
             }
+            // Get the placeholder code sent from backend
             else if (serverMessage.type == "code")
             {
                 pendingArduinoCode = serverMessage.code;  // Store code to be processed in Update()
             }
         }
 
-
+    // Set LEDs as on or off based on value of pin where they are connected
     private void UpdateLedIndicator(GameObject ledIndicator, bool status)
     {
         if (ledIndicator != null)
@@ -118,7 +122,7 @@ public void SendButtonStateChange(string port, int pin) {
     ws.Send(message);
 }
 
-
+// STOP THE RUNNING CODE
 public void StopCodeExecution() {
     string type = "stop-code";
     
@@ -159,36 +163,30 @@ public class ServerMessage {
 
 
 
-    [System.Serializable]
-    public class CompileRunMessage
-    {
-        public string type = "compile-run";
-        public string sketch;
+[System.Serializable]
+public class CompileRunMessage
+{
+    public string type = "compile-run";
+    public string sketch;
 
-        public CompileRunMessage(string sketchContent)
-        {
-            sketch = sketchContent;
-        }
-    }
-
-    [System.Serializable]
-    public class InputStateMessage
+    public CompileRunMessage(string sketchContent)
     {
-        public string type;
-        public string port;
-        public int pin;
-        public bool state;
+        sketch = sketchContent;
     }
+}
 
-    [System.Serializable]
-    public class LedStateResponse
-    {
-        public bool ledStatus;
-    }
+[System.Serializable]
+public class InputStateMessage
+{
+    public string type;
+    public string port;
+    public int pin;
+    public bool state;
+}
 
-    [System.Serializable]
-    public class ArduinoSketch
-    {
-        public string sketch;
-    }
-    }
+[System.Serializable]
+public class ArduinoSketch
+{
+    public string sketch;
+}
+}
