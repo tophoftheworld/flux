@@ -5,9 +5,12 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/SampleScene.unity
     guid: 9fc0d4010bbf28b4594072e72b8655ab
+  - enabled: 1
+    path: Assets/_flux/Scenes/Desk.unity
+    guid: f32edf0fc5dff3e459b65494194fec2c
   - enabled: 1
     path: Assets/Samples/Meta XR Interaction SDK OVR Samples/63.0.0/Example Scenes/BodyPoseDetectionExamples.unity
     guid: 06a339ff5513d7f49a91ab90cbe194d4
