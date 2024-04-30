@@ -134,6 +134,7 @@ GameObject:
   - component: {fileID: 18279467}
   - component: {fileID: 18279469}
   - component: {fileID: 18279468}
+  - component: {fileID: 18279470}
   m_Layer: 5
   m_Name: Red LED 2
   m_TagString: Untagged
@@ -198,6 +199,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 18279466}
   m_CullTransparentMesh: 1
+--- !u!114 &18279470
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 18279466}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 34632dce247244439a35a695592ea752, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &70007991 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6035498533402622012, guid: 1d9de9ee96c2aac4ea3458b27855f24b, type: 3}
@@ -289,6 +302,7 @@ GameObject:
   - component: {fileID: 323982677}
   - component: {fileID: 323982679}
   - component: {fileID: 323982678}
+  - component: {fileID: 323982680}
   m_Layer: 5
   m_Name: Red LED 1
   m_TagString: Untagged
@@ -353,6 +367,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 323982676}
   m_CullTransparentMesh: 1
+--- !u!114 &323982680
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 323982676}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 34632dce247244439a35a695592ea752, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &340880126
 GameObject:
   m_ObjectHideFlags: 0
@@ -1561,7 +1587,6 @@ MonoBehaviour:
   ledIndicatorPin7: {fileID: 18279466}
   ledIndicatorPin6: {fileID: 323982676}
   ledIndicatorBuiltIn: {fileID: 1579087932}
-  servoUIElement: {fileID: 0}
 --- !u!4 &1262037333
 Transform:
   m_ObjectHideFlags: 0
@@ -1962,6 +1987,7 @@ GameObject:
   - component: {fileID: 1579087936}
   - component: {fileID: 1579087935}
   - component: {fileID: 1579087934}
+  - component: {fileID: 1579087937}
   m_Layer: 0
   m_Name: Built-in LED
   m_TagString: Untagged
@@ -2055,6 +2081,18 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1579087932}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1579087937
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1579087932}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 34632dce247244439a35a695592ea752, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &1586441120 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 8553364197529364881, guid: 885ecae56b16f13428a67de5ae482a72, type: 3}

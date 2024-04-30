@@ -1,6 +1,22 @@
 using UnityEngine;
 using UnityEngine.UI;
+// using UnityEditor;
 
+// [CustomEditor(typeof(PushButton))]
+// public class PushButtonEditor : Editor
+// {
+//     public override void OnInspectorGUI()
+//     {
+//         base.OnInspectorGUI();
+
+//         PushButton pushButton = (PushButton)target;
+
+//         if (GUILayout.Button("Press Button"))
+//         {
+//             pushButton.Press();
+//         }
+//     }
+// }
 public class PushButton : MonoBehaviour
 {
     public ArduinoController arduinoController;
