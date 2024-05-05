@@ -37,9 +37,11 @@ public class ArduinoController : MonoBehaviour
     [Header("Game Objects")]
 
     public TMP_InputField arduinoCodeInputField;
+    public TMP_InputField consoleLogInputField;
 
     public GameObject ledIndicatorPin7;
-    public GameObject ledIndicatorPin6;
+    // public GameObject ledIndicatorPin6;
+    public GameObject servoMotor;
     public GameObject ledIndicatorBuiltIn;
 
     private bool buttonState = false;
@@ -108,7 +110,7 @@ public class ArduinoController : MonoBehaviour
         {
             // Debug.Log(serverMessage.pin13);
             UpdateLedIndicator(ledIndicatorPin7, serverMessage.pin7);
-            UpdateLedIndicator(ledIndicatorPin6, serverMessage.pin6);
+            UpdateServoMotor(servoMotor, serverMessage.pin6);
             UpdateLedIndicator(ledIndicatorBuiltIn, serverMessage.pin13);
         }
         // Get the placeholder code sent from backend
@@ -116,6 +118,21 @@ public class ArduinoController : MonoBehaviour
         {
             pendingArduinoCode = serverMessage.code;  // Store code to be processed in Update()
         }
+        else if (serverMessage.type == "console-log"){
+            if (consoleLogInputField != null)
+            {
+                consoleLogInputField.text += serverMessage.log + "\n";
+                ScrollToBottom(consoleLogInputField);
+            }
+        }
+    }
+
+    private void ScrollToBottom(TMP_InputField inputField)
+    {
+        // Set the caret position to the end of the text to auto-scroll to the bottom
+        inputField.ActivateInputField();  // Activate the input field
+        inputField.caretPosition = inputField.text.Length;  // Move the caret to the end
+        inputField.DeactivateInputField();  // Optionally deactivate if not required to stay active
     }
 
     // Set LEDs as on or off based on value of pin where they are connected
@@ -128,6 +145,19 @@ public class ArduinoController : MonoBehaviour
             {
                 int iValue = (int)fValue;
                 led.SetBrightness(iValue);
+            }
+        }
+    }
+
+    private void UpdateServoMotor(GameObject servoMotor, float fValue)
+    {
+        if (servoMotor != null)
+        {
+            ServoMotor servo = servoMotor.GetComponent<ServoMotor>();
+            if (servo != null)
+            {
+                int iValue = (int)fValue;
+                servo.RotateToAngle(iValue);
             }
         }
     }
@@ -157,11 +187,11 @@ public class ArduinoController : MonoBehaviour
 
     // STOP THE RUNNING CODE
     public void StopCodeExecution() {
-        string type = "stop-code";
+        string type = "stop-execution";
         
         if (ws.IsAlive)
         {
-            CompileRunMessage messageObject = new CompileRunMessage("");
+            CompileCodeMessage messageObject = new CompileCodeMessage("");
             messageObject.type = type;
             string message = JsonUtility.ToJson(messageObject);
 
@@ -171,13 +201,28 @@ public class ArduinoController : MonoBehaviour
         }
     }
 
-    public void CompileAndRunCode()
+    public void CompileCode()
     {
         if (arduinoCodeInputField != null && ws.IsAlive)
         {
             Debug.Log("Attempting to compile and run code");
 
-            CompileRunMessage messageObject = new CompileRunMessage(arduinoCodeInputField.text);
+            CompileCodeMessage messageObject = new CompileCodeMessage(arduinoCodeInputField.text);
+            string message = JsonUtility.ToJson(messageObject);
+
+            Debug.Log("Sending message: " + message);
+
+            ws.Send(message);
+        }
+    }
+
+    public void ExecuteCode()
+    {
+        if (arduinoCodeInputField != null && ws.IsAlive)
+        {
+            Debug.Log("Attempting to compile and run code");
+
+            ExecuteCodeMessage messageObject = new ExecuteCodeMessage(arduinoCodeInputField.text);
             string message = JsonUtility.ToJson(messageObject);
 
             Debug.Log("Sending message: " + message);
@@ -190,19 +235,30 @@ public class ArduinoController : MonoBehaviour
     [System.Serializable]
     public class ServerMessage {
         public string type;
-        public float pin0, pin1, pin2, pin3, pin4, pin5, pin6, pin7, pin13;
+        public float pin0, pin1, pin2, pin3, pin4, pin5, pin6, pin7, pin8, pin9, pin10, pin11, pin12, pin13;
         public string code; // Arduino sketch code.
+        public string log;
     }
 
 
-
     [System.Serializable]
-    public class CompileRunMessage
+    public class CompileCodeMessage
     {
-        public string type = "compile-run";
+        public string type = "compile-code";
         public string sketch;
 
-        public CompileRunMessage(string sketchContent)
+        public CompileCodeMessage(string sketchContent)
+        {
+            sketch = sketchContent;
+        }
+    }
+    [System.Serializable]
+    public class ExecuteCodeMessage
+    {
+        public string type = "execute-code";
+        public string sketch;
+
+        public ExecuteCodeMessage(string sketchContent)
         {
             sketch = sketchContent;
         }
