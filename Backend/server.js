@@ -36,21 +36,23 @@ let arduinoCode = `
 
 const int buttonAPin = 2; 
 const int buttonBPin = 3; 
-const int ledPin = 13;
-const int ledPin6 = 6;
-const int ledPin7 = 7;
+const int builtInLed = 13;
+const int servoPin = 6;
+const int ledPin = 5;
 
 bool builtInLedState = false;
-int lastButtonAState = LOW;
+bool ledState = false;
+bool fadeDirection = true;
 
-bool led7State = false;
+int lastButtonAState = LOW;
 int lastButtonBState = LOW;
 
 int brightness = 0;
-int fadeAmount = 5;
-int maxBrightness = 255;
+int fadeAmount = 10;
 
-// const long interval = 30;            // Interval at which to adjust the LED brightness (milliseconds)
+int rotation = 0;
+int rotateAmount = 1;
+int maxBrightness = 255;
 
 unsigned long lastDebounceTime = 0;  // Last time the output pin was toggled
 unsigned long debounceDelay = 50;    // Debounce time in milliseconds
@@ -59,9 +61,9 @@ unsigned long previousMillis = 0;    // Stores last update time
 const long interval = 30;          // Interval at which to blink (milliseconds)
 
 void setup() {
-    pinMode(ledPin6, OUTPUT);
-    pinMode(ledPin7, OUTPUT);
+    pinMode(servoPin, OUTPUT);
     pinMode(ledPin, OUTPUT);
+    pinMode(builtInLed, OUTPUT);
     pinMode(buttonAPin, INPUT);
     pinMode(buttonBPin, INPUT);
 }
@@ -69,38 +71,37 @@ void setup() {
 void loop() {
     unsigned long currentMillis = millis();
 
-    // // LED on pin 6 will blink
-    // if (currentMillis - previousMillis >= interval) {
-    //     previousMillis = currentMillis;
-    //     digitalWrite(ledPin6, digitalRead(ledPin6) == LOW ? HIGH : LOW);
-    // }
-
-    // LED PWM that works with input
+    // // LED PWM that works with input
     if (currentMillis - previousMillis >= interval) {
         previousMillis = currentMillis;
 
-        // Change the brightness for next time through the loop:
-        analogWrite(ledPin6, brightness);
+        // Change the rotation for next time through the loop:
+        analogWrite(servoPin, rotation);
 
-        // Adjust the brightness for next time
-        brightness = brightness + fadeAmount;
+        // Adjust the rotation for next time
+        rotation = rotation + rotateAmount;
 
         // Reverse the direction of the fading at the ends of the fade:
-        if (brightness <= 0 || brightness >= 255) {
-            fadeAmount = -fadeAmount;
+        if (rotation <= 0 || rotation >= 255) {
+            rotateAmount = -rotateAmount;
         }
+
+        // Fade LED
+        if (fadeDirection) {
+            brightness += fadeAmount;
+            if (brightness >= 255) {
+                brightness = 255;
+            }
+        } else {
+            brightness -= fadeAmount;
+            if (brightness <= 0) {
+                brightness = 0;
+            }
+        }
+        analogWrite(ledPin, brightness);
     }
 
-    // LED PWM that doesnt work with input
-    // for (int brightness = 0; brightness < maxBrightness; brightness++) {
-    //     analogWrite(ledPin6, brightness);
-    //     delay(20);
-    // }
-    // for (int brightness = maxBrightness; brightness >= 0; brightness--) {
-    //     analogWrite(ledPin6, brightness);
-    //     delay(20);
-    // }
-    
+ 
 
     // Read the state of the pushbutton
     int readingA = digitalRead(buttonAPin);
@@ -112,8 +113,8 @@ void loop() {
         lastDebounceTime = currentMillis;
     }
     if (readingB != lastButtonBState) {
-        // Reset the debouncing timer
         lastDebounceTime = currentMillis;
+
     }
 
     if ((currentMillis - lastDebounceTime) > debounceDelay) {
@@ -123,15 +124,14 @@ void loop() {
 
             // Only toggle the LED if the new button state is HIGH
             if (builtInLedState == HIGH) {
-                digitalWrite(ledPin, !digitalRead(ledPin));
+                digitalWrite(builtInLed, !digitalRead(builtInLed));
             }
         }
-        if (readingB != led7State) {
-            led7State = readingB;
+        if (readingB != ledState) {
+            ledState = readingB;
 
-            // Only toggle the LED if the new button state is HIGH
-            if (led7State == HIGH) {
-                digitalWrite(ledPin7, !digitalRead(ledPin7));
+            if(ledState == HIGH){
+                fadeDirection = !fadeDirection;
             }
         }
     }
@@ -212,6 +212,8 @@ async function executeCode(sketch){
     execute(globalHex);
 }
 
+let lastSentPinStates = {};
+
 // Function to send pin states to Unity
 function sendPinStates() {
     // Convert to Int
@@ -219,11 +221,19 @@ function sendPinStates() {
         Object.entries(pinStates).map(([key, value]) => [key, parseInt(value)])
     );
 
-    wss.clients.forEach(client => {
-        if (client.readyState === WebSocket.OPEN) {
-            client.send(JSON.stringify({ type: 'pin-states', ...intPinStates }));
-        }
-    });
+    const hasChanges = Object.keys(intPinStates).some(key => intPinStates[key] !== lastSentPinStates[key]);
+
+    // Only send updates if there are changes
+    if (hasChanges) {
+        wss.clients.forEach(client => {
+            if (client.readyState === WebSocket.OPEN) {
+                client.send(JSON.stringify({ type: 'pin-states', ...intPinStates }));
+            }
+        });
+
+        // Update last sent states
+        lastSentPinStates = { ...intPinStates };
+    }
 }
 
 // Function to send pin states to Unity
@@ -239,6 +249,7 @@ function sendConsoleLog(consoleLog) {
 // STOP THE RUNNING SIMULATION
 function stopExecution() {
     console.log("Stop");
+    sendConsoleLog('Stopping...');
     if (avr8jsWorker && avr8jsWorker.postMessage) {
         avr8jsWorker.postMessage({ type: 'stop-execution'});
     } else {

@@ -1,15 +1,24 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class LED : MonoBehaviour
+public class LED : MonoBehaviour, IOutputDevice
 {
+    public int pin;
     private Image ledImage;
     private MeshRenderer meshRenderer;
+
+    private ArduinoController arduinoController;
 
     void Start()
     {
         ledImage = GetComponent<Image>();
         meshRenderer = GetComponent<MeshRenderer>();
+
+        ArduinoController arduinoController = FindObjectOfType<ArduinoController>();
+        if (arduinoController != null)
+        {
+            arduinoController.RegisterDevice(this, pin);
+        }
 
         if (ledImage == null && meshRenderer == null)
         {
@@ -34,16 +43,19 @@ public class LED : MonoBehaviour
     {
         if (ledImage != null)
         {
-            // Map the brightness from 0-255 to 0-1 for the alpha channel
             float alpha = brightness / 255.0f;
             ledImage.color = new Color(ledImage.color.r, ledImage.color.g, ledImage.color.b, alpha);
         }
         else if (meshRenderer != null)
         {
-            // Map the brightness from 0-255 to 0-1 for the alpha channel
             float alpha = brightness / 255.0f;
             Color currentColor = meshRenderer.material.color;
             meshRenderer.material.color = new Color(currentColor.r, currentColor.g, currentColor.b, alpha);
         }
+    }
+
+    public void UpdatePinState(int newState)
+    {
+        SetBrightness(newState);
     }
 }

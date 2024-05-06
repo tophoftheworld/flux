@@ -1,5 +1,7 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
+
 using TMPro;
 using WebSocketSharp;
 // using UnityEditor;
@@ -15,7 +17,7 @@ using WebSocketSharp;
 
 //         if (GUILayout.Button("start"))
 //         {
-//             arduinoController.CompileAndRunCode();
+//             arduinoController.ExecuteCode();
 //         }
 //          if (GUILayout.Button("stop"))
 //         {
@@ -39,16 +41,36 @@ public class ArduinoController : MonoBehaviour
     public TMP_InputField arduinoCodeInputField;
     public TMP_InputField consoleLogInputField;
 
-    public GameObject ledIndicatorPin7;
-    // public GameObject ledIndicatorPin6;
-    public GameObject servoMotor;
-    public GameObject ledIndicatorBuiltIn;
-
     private bool buttonState = false;
 
     private WebSocket ws;
 
     private string pendingArduinoCode;
+
+    [Header("Pin States")]
+    public float[] pinStates = new float[14];
+
+    private Dictionary<int, List<IOutputDevice>> deviceListeners = new Dictionary<int, List<IOutputDevice>>();
+
+    public void RegisterDevice(IOutputDevice device, int pin)
+    {
+        if (!deviceListeners.ContainsKey(pin))
+        {
+            deviceListeners[pin] = new List<IOutputDevice>();
+        }
+        deviceListeners[pin].Add(device);
+    }
+
+    public void NotifyPinChange(int pin, int newState)
+    {
+        if (deviceListeners.ContainsKey(pin))
+        {
+            foreach (var device in deviceListeners[pin])
+            {
+                device.UpdatePinState(newState);
+            }
+        }
+    }
 
     void Update() {
         // Update Arduino IDE input field using the placeholder code received from the backend
@@ -109,9 +131,7 @@ public class ArduinoController : MonoBehaviour
         if (serverMessage.type == "pin-states")
         {
             // Debug.Log(serverMessage.pin13);
-            UpdateLedIndicator(ledIndicatorPin7, serverMessage.pin7);
-            UpdateServoMotor(servoMotor, serverMessage.pin6);
-            UpdateLedIndicator(ledIndicatorBuiltIn, serverMessage.pin13);
+            UpdatePinStates(serverMessage);
         }
         // Get the placeholder code sent from backend
         else if (serverMessage.type == "code")
@@ -135,33 +155,23 @@ public class ArduinoController : MonoBehaviour
         inputField.DeactivateInputField();  // Optionally deactivate if not required to stay active
     }
 
-    // Set LEDs as on or off based on value of pin where they are connected
-    private void UpdateLedIndicator(GameObject ledIndicator, float fValue)
+    private void UpdatePinStates(ServerMessage message)
     {
-        if (ledIndicator != null)
+        float[] newStates = {
+            message.pin0, message.pin1, message.pin2, message.pin3, message.pin4,
+            message.pin5, message.pin6, message.pin7, message.pin8, message.pin9,
+            message.pin10, message.pin11, message.pin12, message.pin13
+        };
+        for (int pin = 0; pin < newStates.Length; pin++)
         {
-            LED led = ledIndicator.GetComponent<LED>();
-            if (led != null)
+            int newState = (int)newStates[pin];
+            if (pinStates[pin] != newState)
             {
-                int iValue = (int)fValue;
-                led.SetBrightness(iValue);
+                pinStates[pin] = newState;
+                NotifyPinChange(pin, newState);
             }
         }
     }
-
-    private void UpdateServoMotor(GameObject servoMotor, float fValue)
-    {
-        if (servoMotor != null)
-        {
-            ServoMotor servo = servoMotor.GetComponent<ServoMotor>();
-            if (servo != null)
-            {
-                int iValue = (int)fValue;
-                servo.RotateToAngle(iValue);
-            }
-        }
-    }
-
 
     // If value other than 0, then return TRUE
     private bool IntToBool(int value) {

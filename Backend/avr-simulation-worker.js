@@ -1,7 +1,7 @@
 const { parentPort, workerData } = require('worker_threads');
-const { AVRRunner } = require('./execute'); // Make sure the path is correct
+const { AVRRunner } = require('./execute');
 const { parse } = require('intel-hex');
-const { CPUPerformance, PinState } = require('avr8js'); // Assume these are correctly imported
+const { CPUPerformance, PinState } = require('avr8js');
 
 let inputChangeQueue = [];
 
@@ -67,7 +67,8 @@ function startSimulation(hex) {
     const MHZ = 16000000;
     runner = new AVRRunner(hex);
 
-    let pwmPins = [3, 5, 6, 9, 10, 11].reduce((obj, pin) => {
+    // PWM won't work on 3,9,10, and 11 yet
+    let pwmPins = [5, 6].reduce((obj, pin) => {
         obj[pin] = { highCycles: 0, lastCycle: 0, lastUpdateCycles: 0,state: PinState.Low };
         return obj;
     }, {});
@@ -88,8 +89,10 @@ function startSimulation(hex) {
         if (pwmPins[pin].state === PinState.High) {
             pwmPins[pin].highCycles += runner.cpu.cycles - pwmPins[pin].lastCycle;
         }
-        pinStates[`pin${pin}`] = (pwmPins[pin].highCycles/ cyclesSinceUpdate) * 255;
-
+        // Convert to integer first
+        let dutyCycle = (pwmPins[pin].highCycles / cyclesSinceUpdate) * 255;
+        pinStates[`pin${pin}`] = Math.round(dutyCycle);
+        
         pwmPins[pin].lastUpdateCycles = runner.cpu.cycles;
         pwmPins[pin].lastCycle = runner.cpu.cycles;
         pwmPins[pin].highCycles = 0;
@@ -130,13 +133,13 @@ function startSimulation(hex) {
         }
     
         // Handle PWM pins on Port B
-        Object.keys(pwmPins).forEach(pin => {
-            let port;
-            // If pin index is less than 8, then its under port D
-            port = pin < 8 ? runner.portD : runner.portB;
-            let state = port.pinState(pin);
-            updatePWM(pin, state);
-        });
+        // Object.keys(pwmPins).forEach(pin => {
+        //     let port;
+        //     // If pin index is less than 8, then its under port D
+        //     port = pin < 8 ? runner.portD : runner.portB;
+        //     let state = port.pinState(pin);
+        //     updatePWM(pin, state);
+        // });
 
         parentPort.postMessage({ type: 'update-pin-states', pinStates });
     });
