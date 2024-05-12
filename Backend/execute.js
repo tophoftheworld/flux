@@ -1,6 +1,5 @@
 const avr8js = require("avr8js");
 const { loadHex } = require("./intelhex");
-const { MicroTaskScheduler } = require("./task-scheduler");
 
 const {
   avrInstruction,
@@ -23,7 +22,6 @@ class AVRRunner {
     program = new Uint16Array(FLASH)
     speed = 16e6 // 16 MHZ
     workUnitCycles = 500000
-    taskScheduler = new MicroTaskScheduler()
 
     constructor(hex) {
         loadHex(hex, new Uint8Array(this.program.buffer))
@@ -35,7 +33,6 @@ class AVRRunner {
         this.portC = new AVRIOPort(this.cpu, portCConfig)
         this.portD = new AVRIOPort(this.cpu, portDConfig)
         this.usart = new AVRUSART(this.cpu, usart0Config, this.speed)
-        this.taskScheduler.start()
     }
 
     // CPU main loop

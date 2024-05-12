@@ -3071,8 +3071,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5e7171fe2bd45497b8ad54f694df0e99, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enableAVR8JS: 0
-  serverIpAddress: 192.168.1.29
+  enableAVR8JS: 1
+  serverIpAddress: 192.168.1.27
+  portAddress: 8080
   arduinoCodeInputField: {fileID: 1666093362}
   consoleLogInputField: {fileID: 1879835549}
   pinStates:
