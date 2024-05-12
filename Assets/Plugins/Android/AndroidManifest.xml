@@ -16,4 +16,6 @@
   </application>
   <uses-feature android:name="android.hardware.vr.headtracking" android:version="1" android:required="true" />
   <uses-permission android:name="com.oculus.permission.USE_SCENE" />
+  <uses-permission android:name="android.permission.INTERNET"/>
+  <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 </manifest>

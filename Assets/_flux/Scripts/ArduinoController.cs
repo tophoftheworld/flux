@@ -87,7 +87,7 @@ public class ArduinoController : MonoBehaviour
 
         if (!enableAVR8JS) return;
 
-        serverUrl = $"ws://{serverIpAddress}:{portAddress}";
+        serverUrl = $"ws://13.211.163.159:8080";
         ConnectToWebSocket();
     }
 

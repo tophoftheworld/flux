@@ -3072,7 +3072,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enableAVR8JS: 1
-  serverIpAddress: 192.168.1.27
+  serverIpAddress: 13.211.163.159
   portAddress: 8080
   arduinoCodeInputField: {fileID: 1666093362}
   consoleLogInputField: {fileID: 1879835549}
