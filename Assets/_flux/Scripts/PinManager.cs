@@ -3,21 +3,21 @@ using UnityEngine;
 
 public class PinManager : MonoBehaviour
 {
-    public static PinManager Instance { get; private set; }
+    // public static PinManager Instance { get; private set; }
     [SerializeField] private TextMeshProUGUI pinNumberText;
 
     private Pin currentlyHoveredPin = null;
 
     private void Awake()
     {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-        }
-        else
-        {
-            Instance = this;
-        }
+        // if (Instance != null && Instance != this)
+        // {
+        //     Destroy(gameObject);
+        // }
+        // else
+        // {
+        //     Instance = this;
+        // }
 
         pinNumberText.gameObject.SetActive(false);
     }
