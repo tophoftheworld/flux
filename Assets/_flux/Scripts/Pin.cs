@@ -1,5 +1,6 @@
 using Oculus.Interaction;
 using UnityEngine;
+using Oculus.Interaction;
 
 public class Pin : MonoBehaviour
 {
@@ -8,6 +9,9 @@ public class Pin : MonoBehaviour
     private IInteractableView InteractableView { get; set; }
 
     public string PinNumber;
+    
+    private PinManager pinManager;
+    private SnapInteractable snapInteractable;
 
     private void Awake()
     {
@@ -17,6 +21,25 @@ public class Pin : MonoBehaviour
         {
             InteractableView.WhenStateChanged += HandleStateChange;
         }
+
+        if(snapInteractable == null)
+        {
+            snapInteractable = GetComponentInChildren<SnapInteractable>();
+            snapInteractable.InjectRigidbody(GetComponentInParent<Rigidbody>());
+        }
+
+        if(pinManager == null)
+        {
+            pinManager = GetComponentInParent<PinManager>();
+        }
+    }
+
+    private void Start()
+    {
+        // if(snapInteractable.Rigidbody == null)
+        // {
+        //     snapInteractable.InjectRigidbody(GetComponentInParent<Rigidbody>());
+        // }
     }
 
     private void OnDestroy()
@@ -29,13 +52,19 @@ public class Pin : MonoBehaviour
 
     private void HandleStateChange(InteractableStateChangeArgs args)
     {
+        
+        if(pinManager == null)
+        {
+            return;
+        }
+
         if (InteractableView.State == InteractableState.Hover)
         {
-            PinManager.Instance.ShowPinNumber(this);
+            pinManager.ShowPinNumber(this);
         }
         else
         {
-            PinManager.Instance.HidePinNumber(this);
+            pinManager.HidePinNumber(this);
         }
     }
 }
