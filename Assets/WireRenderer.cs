@@ -32,6 +32,8 @@ public class WireRenderer : MonoBehaviour
         // lineRenderer.material = new Material(Shader.Find("Sprites/Default")); // Set a default material
         lineRenderer.startColor = wireColor;
         lineRenderer.endColor = wireColor;
+
+        RandomizeWireColor();  // Call randomize color on setup
     }
 
     private void DrawCurvedLine()
@@ -84,5 +86,15 @@ public class WireRenderer : MonoBehaviour
         p += ttt * p3; // fourth term
 
         return p;
+    }
+
+    private void RandomizeWireColor()
+    {
+        float h, s, v;
+        Color.RGBToHSV(wireColor, out h, out s, out v);  // Extract saturation and value from the original color
+        h = Random.Range(0f, 1f);  // Randomize hue
+        wireColor = Color.HSVToRGB(h, s, v);  // Create a new color with the original saturation and value but new hue
+        lineRenderer.startColor = wireColor;
+        lineRenderer.endColor = wireColor;
     }
 }

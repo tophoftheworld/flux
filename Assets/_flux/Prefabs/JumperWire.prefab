@@ -9,8 +9,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 9137223246442773}
-  - component: {fileID: 2803575323136151542}
   - component: {fileID: 4877681553535775847}
+  - component: {fileID: 4658619065952861659}
   m_Layer: 0
   m_Name: JumperWire
   m_TagString: Untagged
@@ -35,25 +35,6 @@ Transform:
   - {fileID: 1876198331473570853}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2803575323136151542
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 525425819908451093}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 08e6e200135c1454e8f009008fc0e340, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  startPoint: {fileID: 1270908243536202414}
-  endPoint: {fileID: 7714613141324207899}
-  wireRadius: 0.004
-  wireColor: {r: 0.030526895, g: 0.32256877, b: 0.9245283, a: 1}
-  segments: 18
-  curveHeight: 0.04
-  verticalSegmentHeight: 0.015
 --- !u!120 &4877681553535775847
 LineRenderer:
   serializedVersion: 2
@@ -128,8 +109,8 @@ LineRenderer:
       key6: {r: 0, g: 0, b: 0, a: 0}
       key7: {r: 0, g: 0, b: 0, a: 0}
       ctime0: 0
-      ctime1: 24792
-      ctime2: 45356
+      ctime1: 65535
+      ctime2: 65535
       ctime3: 65535
       ctime4: 0
       ctime5: 0
@@ -145,7 +126,7 @@ LineRenderer:
       atime7: 0
       m_Mode: 0
       m_ColorSpace: 0
-      m_NumColorKeys: 4
+      m_NumColorKeys: 2
       m_NumAlphaKeys: 2
     numCornerVertices: 0
     numCapVertices: 0
@@ -158,6 +139,25 @@ LineRenderer:
   m_UseWorldSpace: 1
   m_Loop: 0
   m_ApplyActiveColorSpace: 1
+--- !u!114 &4658619065952861659
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 525425819908451093}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a75360d4cab6e8a48b91971265200e74, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  startPoint: {fileID: 1270908243536202414}
+  endPoint: {fileID: 7714613141324207899}
+  wireRadius: 0.004
+  wireColor: {r: 0.056737266, g: 0.25036013, b: 0.8018868, a: 1}
+  segments: 18
+  curveHeight: 0.04
+  verticalSegmentHeight: 0.015
 --- !u!1001 &1743870107791083376
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -244,7 +244,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7572320542102786279, guid: 2bdab9336a9860143bce0c473bfb3774, type: 3}
       propertyPath: m_IsTrigger
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8303713404124647531, guid: 2bdab9336a9860143bce0c473bfb3774, type: 3}
       propertyPath: m_LocalPosition.y
@@ -359,7 +359,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7572320542102786279, guid: 2bdab9336a9860143bce0c473bfb3774, type: 3}
       propertyPath: m_IsTrigger
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8303713404124647531, guid: 2bdab9336a9860143bce0c473bfb3774, type: 3}
       propertyPath: m_LocalPosition.y

@@ -1009,6 +1009,7 @@ GameObject:
   - component: {fileID: 2325184384852322736}
   - component: {fileID: 2479290287247914048}
   - component: {fileID: 7424955127042960865}
+  - component: {fileID: 6134306383431384138}
   m_Layer: 5
   m_Name: Arduino - IDE
   m_TagString: Untagged
@@ -1191,6 +1192,20 @@ MonoBehaviour:
       AxisRange:
         Min: 0
         Max: 0
+--- !u!114 &6134306383431384138
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2421566100352318429}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5777e5b04a5a6514593024c8d30c1b82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 0}
+  followSpeed: 1
 --- !u!1 &2896540637836454605
 GameObject:
   m_ObjectHideFlags: 0
