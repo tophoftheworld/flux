@@ -63,6 +63,15 @@ public class ArduinoController : MonoBehaviour
         }
         deviceListeners[pin].Add(device);
     }
+    public void RegisterCar(Car car, int pin)
+    {
+        if (!deviceListeners.ContainsKey(pin))
+        {
+            deviceListeners[pin] = new List<IOutputDevice>();
+        }
+        deviceListeners[pin].Add(car);
+    }
+
 
     public void NotifyPinChange(int pin, int newState)
     {
@@ -90,6 +99,12 @@ public class ArduinoController : MonoBehaviour
 
         serverUrl = $"ws://{serverIpAddress}:{portAddress}";
         ConnectToWebSocket();
+
+        Car car = FindObjectOfType<Car>();
+        if (car != null)
+        {
+            RegisterCar(car, 6);  // Register Car to listen to pin 6
+        }
     }
 
     void ConnectToWebSocket()

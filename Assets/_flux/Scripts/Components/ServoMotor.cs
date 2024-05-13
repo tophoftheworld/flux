@@ -6,7 +6,7 @@ public class ServoMotor : MonoBehaviour, IOutputDevice
     public Transform pivot;
     public float maxDegree = 180f; // Public variable for maximum degree
     private ArduinoController arduinoController;
-    private float initialAngle;
+    private Vector3 initialRotation;
 
     void Start()
     {
@@ -14,7 +14,7 @@ public class ServoMotor : MonoBehaviour, IOutputDevice
         {
             Debug.LogError("ServoMotor script requires a child Transform assigned as pivot.");
         }
-        initialAngle = pivot.localRotation.eulerAngles.z;
+        initialRotation = pivot.localRotation.eulerAngles;
 
         arduinoController = FindObjectOfType<ArduinoController>();
         if (arduinoController != null)
@@ -27,10 +27,10 @@ public class ServoMotor : MonoBehaviour, IOutputDevice
     {
         if (pivot != null)
         {
-            // Add the angle to the initial angle and rotate the pivot around the Z-axis
-            float newAngle = initialAngle + angle;
-            newAngle = Mathf.Clamp(newAngle, 0, maxDegree); // Ensure the angle stays within the bounds
-            pivot.localRotation = Quaternion.Euler(0, 0, newAngle);
+            // Add the angle to the initial Z rotation angle and rotate the pivot
+            float newZAngle = initialRotation.z + angle;
+            newZAngle = Mathf.Clamp(newZAngle, 0, maxDegree); // Ensure the angle stays within the bounds
+            pivot.localRotation = Quaternion.Euler(initialRotation.x, initialRotation.y, newZAngle);
         }
         else
         {

@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Car : MonoBehaviour
+public class Car : MonoBehaviour, IOutputDevice
 {
     public DCMotor tr; // Top right motor
     public DCMotor tl; // Top left motor
@@ -12,6 +12,7 @@ public class Car : MonoBehaviour
     public float fullSpeed = 10f; // Full speed for the car
     public float rotationSpeed = 5f; // Speed for rotation
     public float speedFactor = 0.5f; // Factor to reduce speed when rotating
+    private float speedMultiplier = 1f;
 
 
     void Start()
@@ -71,7 +72,17 @@ public class Car : MonoBehaviour
             movement = transform.forward * adjustedSpeed * Time.deltaTime;
         }
 
-        transform.Translate(movement, Space.World);
-        transform.Rotate(rotation);
+        transform.Translate(movement * speedMultiplier, Space.World);
+        transform.Rotate(rotation * speedMultiplier);
+    }
+
+        public void UpdatePinState(int newState)
+    {
+        speedMultiplier = newState / 255f;
+        tr.SetSpeedMultiplier(speedMultiplier);
+        tl.SetSpeedMultiplier(speedMultiplier);
+        br.SetSpeedMultiplier(speedMultiplier);
+        bl.SetSpeedMultiplier(speedMultiplier);
+
     }
 }
