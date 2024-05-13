@@ -3,7 +3,12 @@ guid: 4cb333b13ccd4432687a1064ac30484b
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: M_FLUX_ComponentModels
+    second: {fileID: 2100000, guid: a59410d87a5384bc7b83a3ca3133e507, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0

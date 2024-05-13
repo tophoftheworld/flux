@@ -1,10 +1,10 @@
-Shader "Custom/StandardVertexColor"
+Shader "Custom/URPStandardVertexColor"
 {
     Properties
     {
-        _Color ("Main Color", Color) = (1,1,1,1)
-        _MainTex ("Albedo (RGB)", 2D) = "white" {}
-        _Glossiness ("Smoothness", Range(0,1)) = 0.5
+        _BaseColor ("Base Color", Color) = (1,1,1,1)
+        _BaseMap ("Base Map", 2D) = "white" {}
+        _Smoothness ("Smoothness", Range(0,1)) = 0.5
         _Metallic ("Metallic", Range(0,1)) = 0.0
         _Transparency ("Transparency", Range(0,1)) = 0.5
     }
@@ -13,36 +13,96 @@ Shader "Custom/StandardVertexColor"
         Tags { "RenderType"="Transparent" "Queue"="Transparent"}
         LOD 200
 
-        Blend SrcAlpha OneMinusSrcAlpha
-        ZWrite Off
-
-        CGPROGRAM
-        #pragma surface surf Standard fullforwardshadows alpha
-
-        // Define the struct for input data
-        struct Input
+        Pass
         {
-            float4 color : COLOR;
-            float2 uv_MainTex;
-        };
+            Name "ForwardLit"
+            Tags { "LightMode"="UniversalForward" }
 
-        sampler2D _MainTex;
-        fixed4 _Color;
-        half _Glossiness;
-        half _Metallic;
-        half _Transparency;
+            Blend SrcAlpha OneMinusSrcAlpha
+            ZWrite Off
 
-        // The surface shader function
-        void surf (Input IN, inout SurfaceOutputStandard o)
-        {
-            fixed4 c = tex2D(_MainTex, IN.uv_MainTex) * _Color * IN.color;
-            o.Albedo = c.rgb;
-            o.Metallic = _Metallic;
-            o.Smoothness = _Glossiness;
-            // Apply transparency
-            o.Alpha = c.a * _Transparency;
+            HLSLPROGRAM
+            #pragma vertex Vert
+            #pragma fragment Frag
+            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS
+            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS_CASCADE
+            #pragma multi_compile _ _ADDITIONAL_LIGHTS_VERTEX _ADDITIONAL_LIGHTS
+            #pragma multi_compile _ _ADDITIONAL_LIGHT_SHADOWS
+            #pragma multi_compile _ _SHADOWS_SOFT
+            #pragma multi_compile _ _MIXED_LIGHTING_SUBTRACTIVE
+            #pragma multi_compile _ _MIXED_LIGHTING
+            #pragma multi_compile_fog
+            #pragma multi_compile_instancing
+
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/SurfaceInput.hlsl"
+
+            struct Attributes
+            {
+                float4 positionOS : POSITION;
+                float4 color : COLOR;
+                float2 uv : TEXCOORD0;
+            };
+
+            struct Varyings
+            {
+                float4 positionHCS : SV_POSITION;
+                float4 color : COLOR;
+                float2 uv : TEXCOORD0;
+                float3 viewDirWS : TEXCOORD1;
+                LIGHT_COORDS
+            };
+
+            CBUFFER_START(UnityPerMaterial)
+                float4 _BaseColor;
+                half _Smoothness;
+                half _Metallic;
+                half _Transparency;
+            CBUFFER_END
+
+            TEXTURE2D(_BaseMap);
+            SAMPLER(sampler_BaseMap);
+
+            Varyings Vert(Attributes IN)
+            {
+                Varyings OUT;
+                OUT.positionHCS = TransformObjectToHClip(IN.positionOS);
+                OUT.color = IN.color;
+                OUT.uv = IN.uv;
+                OUT.viewDirWS = GetWorldSpaceViewDir(IN.positionOS);
+
+                // Initialize lighting coordinates
+                InitializeStandardLitSurfaceVertex(IN.positionOS, OUT.positionHCS, OUT);
+
+                return OUT;
+            }
+
+            half4 Frag(Varyings IN) : SV_Target
+            {
+                // Sample the texture and apply vertex color and base color
+                half4 baseColor = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, IN.uv) * _BaseColor * IN.color;
+                
+                // Initialize the surface data
+                SurfaceData surfaceData;
+                InitializeStandardLitSurfaceData(IN, surfaceData);
+                
+                surfaceData.baseColor = baseColor.rgb;
+                surfaceData.metallic = _Metallic;
+                surfaceData.smoothness = _Smoothness;
+                surfaceData.occlusion = 1.0;
+                surfaceData.alpha = baseColor.a * _Transparency;
+
+                // Compute the final color
+                half4 color = UniversalFragmentBlinnPhong(IN, surfaceData);
+
+                // Apply fog
+                ApplyFog(IN.positionHCS.z, color);
+                
+                return color;
+            }
+            ENDHLSL
         }
-        ENDCG
     }
-    FallBack "Transparent/Diffuse"
+    FallBack "Universal Render Pipeline/Lit"
 }

@@ -31,7 +31,8 @@ public class ArduinoController : MonoBehaviour
 
     [Header("Configuration")]
     public bool enableAVR8JS = true;
-    public string serverIpAddress = "192.168.8.101";
+    public string serverIpAddress = "flux-422808.et.r.appspot.com";
+    public string portAddress = "8080";
 
     // use 'ws://localhost:4005' if running on same device
     private string serverUrl;
@@ -44,11 +45,13 @@ public class ArduinoController : MonoBehaviour
     private bool buttonState = false;
 
     private WebSocket ws;
+    private bool isConnecting = false;
 
     private string pendingArduinoCode;
 
     [Header("Pin States")]
     public float[] pinStates = new float[14];
+    public Pin[] pins = new Pin[14];
 
     private Dictionary<int, List<IOutputDevice>> deviceListeners = new Dictionary<int, List<IOutputDevice>>();
 
@@ -85,33 +88,53 @@ public class ArduinoController : MonoBehaviour
 
         if (!enableAVR8JS) return;
 
-        serverUrl = $"ws://{serverIpAddress}:4005";
-        // Initialize the WebSocket connection
+        serverUrl = $"ws://{serverIpAddress}:{portAddress}";
+        ConnectToWebSocket();
+    }
+
+    void ConnectToWebSocket()
+    {
+        if (isConnecting) return; // Prevent multiple connection attempts running at the same time
+        isConnecting = true;
+
         ws = new WebSocket(serverUrl);
-        
+        ws.OnOpen += (sender, e) =>
+        {
+            Debug.Log("WebSocket connection opened");
+            isConnecting = false;
+        };
         ws.OnMessage += (sender, e) =>
         {
             Debug.Log("Message Received: " + e.Data);
             ProcessWebSocketMessage(e.Data);
         };
-
-        ws.OnOpen += (sender, e) => 
-        {
-            Debug.Log("WebSocket connection opened");
-        };
-
-        ws.OnError += (sender, e) => 
+        ws.OnError += (sender, e) =>
         {
             Debug.LogError("WebSocket error: " + e.Message);
+            TryReconnect();
         };
-
-        ws.OnClose += (sender, e) => 
+        ws.OnClose += (sender, e) =>
         {
             Debug.Log("WebSocket connection closed");
+            TryReconnect();
         };
 
-        // Connect to the server
-        ws.Connect();
+        try
+        {
+            ws.Connect();
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError("WebSocket connection failed: " + ex.Message);
+            TryReconnect();
+        }
+    }
+
+    void TryReconnect()
+    {
+        if (ws != null) { ws.Close(); }
+        isConnecting = false; // Reset flag to allow reconnect attempts
+        Invoke("ConnectToWebSocket", 2); // Retry after 10 seconds
     }
 
     void OnDestroy()
@@ -188,6 +211,20 @@ public class ArduinoController : MonoBehaviour
             port = port,
             pin = pin,
             state = buttonState
+        };
+
+        string message = JsonUtility.ToJson(messageObject);
+        Debug.Log($"Sending button state change: {message}");
+        ws.Send(message);
+    }
+
+        // Send input change to avr8js
+    public void SendStateChange(string port, int pin, bool value) {
+            InputStateMessage messageObject = new InputStateMessage {
+            type = "input-change",
+            port = port,
+            pin = pin,
+            state = value
         };
 
         string message = JsonUtility.ToJson(messageObject);

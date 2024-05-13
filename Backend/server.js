@@ -1,14 +1,13 @@
 const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
-const { parse } = require('intel-hex');
 const { CPU, avrInstruction, AVRIOPort, portBConfig,portDConfig, PinState, AVRTimer, timer0Config } = require('avr8js');
 const WebSocket = require('ws');
 const http = require('http');
 const { Worker } = require('worker_threads');
 
 const app = express();
-const port = 4004;
+const port = 8080;
 
 app.use(cors());
 app.use(express.json());
@@ -295,14 +294,19 @@ wss.on('connection', function connection(ws) {
         }
     });
 
+    // CAN BE REMOVE IF WE WANT THE SIMULATION TO WORK DEFINITELY
+    // Stop the simulation if the client disconnects
+    ws.on('close', () => {
+        console.log('Client disconnected. Stopping simulation.');
+        stopExecution();
+    });
+
+
     // Send the placeholder code when a new client connects
     ws.send(JSON.stringify({ type: 'code', code: arduinoCode }));
 });
 
-app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`);
-});
 
-server.listen(4005, () => {
-    console.log(`WebSocket Server running at http://localhost:4005`);
+server.listen(port, () => {
+    console.log(`Server and WebSocket are running at http://localhost:${port}`);
 });
