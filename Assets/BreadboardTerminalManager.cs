@@ -34,6 +34,14 @@ public class BreadboardTerminalManager : MonoBehaviour
 
     public Transform terminalParent;
 
+    private char currentLabel = 'j';
+
+    public float[] terminalsA = new float[30];
+    public float[] terminalsB = new float[30];
+
+    public float[] powerRails = new float[4];
+
+
     void Start()
     {
         PopulatePowerRail(topPowerRail);
@@ -58,6 +66,8 @@ public class BreadboardTerminalManager : MonoBehaviour
                 for (int terminal = 0; terminal < terminalsPerPRGroup; terminal++)
                 {
                     GameObject terminalGO = Instantiate(terminalPrefab, currentPos, Quaternion.identity, transform);
+                    terminalGO.GetComponent<Pin>().PinNumber = (line == 0) ? "-" : "+";
+                    Debug.Log(terminal);
                     terminalGO.transform.parent = terminalParent;
                     terminalGO.transform.localPosition = currentPos;
                     currentPos += new Vector3(terminalSpacing, 0, 0);
@@ -85,7 +95,12 @@ public class BreadboardTerminalManager : MonoBehaviour
                 terminalGO.transform.parent = terminalParent;
                 terminalGO.transform.localPosition = currentPos;
                 currentPos += new Vector3(terminalSpacing, 0, 0);
+
+                // +1 since breadboard is 1-indexing
+                terminalGO.GetComponent<Pin>().PinNumber =  $"{terminal+1}{currentLabel}";
+                
             }
+            if (--currentLabel < 'a') currentLabel = 'j';
         }
     }
 }

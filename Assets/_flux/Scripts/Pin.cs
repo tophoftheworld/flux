@@ -9,7 +9,8 @@ public class Pin : MonoBehaviour
     private IInteractableView InteractableView { get; set; }
 
     public string PinNumber;
-    
+    public int value;
+
     private PinManager pinManager;
     private SnapInteractable snapInteractable;
 

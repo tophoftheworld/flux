@@ -51,6 +51,7 @@ public class ArduinoController : MonoBehaviour
 
     [Header("Pin States")]
     public float[] pinStates = new float[14];
+    public Pin[] pins = new Pin[14];
 
     private Dictionary<int, List<IOutputDevice>> deviceListeners = new Dictionary<int, List<IOutputDevice>>();
 
@@ -87,7 +88,7 @@ public class ArduinoController : MonoBehaviour
 
         if (!enableAVR8JS) return;
 
-        serverUrl = $"ws://13.211.163.159:8080";
+        serverUrl = $"ws://{serverIpAddress}:{portAddress}";
         ConnectToWebSocket();
     }
 
@@ -133,7 +134,7 @@ public class ArduinoController : MonoBehaviour
     {
         if (ws != null) { ws.Close(); }
         isConnecting = false; // Reset flag to allow reconnect attempts
-        Invoke("ConnectToWebSocket", 1); // Retry after 10 seconds
+        Invoke("ConnectToWebSocket", 2); // Retry after 10 seconds
     }
 
     void OnDestroy()
@@ -210,6 +211,20 @@ public class ArduinoController : MonoBehaviour
             port = port,
             pin = pin,
             state = buttonState
+        };
+
+        string message = JsonUtility.ToJson(messageObject);
+        Debug.Log($"Sending button state change: {message}");
+        ws.Send(message);
+    }
+
+        // Send input change to avr8js
+    public void SendStateChange(string port, int pin, bool value) {
+            InputStateMessage messageObject = new InputStateMessage {
+            type = "input-change",
+            port = port,
+            pin = pin,
+            state = value
         };
 
         string message = JsonUtility.ToJson(messageObject);
