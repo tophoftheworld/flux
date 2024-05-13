@@ -4,7 +4,9 @@ public class ServoMotor : MonoBehaviour, IOutputDevice
 {
     public int pin;
     public Transform pivot;
+    public float maxDegree = 180f; // Public variable for maximum degree
     private ArduinoController arduinoController;
+    private float initialAngle;
 
     void Start()
     {
@@ -12,19 +14,23 @@ public class ServoMotor : MonoBehaviour, IOutputDevice
         {
             Debug.LogError("ServoMotor script requires a child Transform assigned as pivot.");
         }
-        ArduinoController arduinoController = FindObjectOfType<ArduinoController>();
+        initialAngle = pivot.localRotation.eulerAngles.z;
+
+        arduinoController = FindObjectOfType<ArduinoController>();
         if (arduinoController != null)
         {
             arduinoController.RegisterDevice(this, pin);
         }
     }
 
-    public void RotateToAngle(float angle)
+    public void RotateByAngle(float angle)
     {
         if (pivot != null)
         {
-            // Rotate the pivot around the Z-axis to the specified angle
-            pivot.localRotation = Quaternion.Euler(0, 0, angle);
+            // Add the angle to the initial angle and rotate the pivot around the Z-axis
+            float newAngle = initialAngle + angle;
+            newAngle = Mathf.Clamp(newAngle, 0, maxDegree); // Ensure the angle stays within the bounds
+            pivot.localRotation = Quaternion.Euler(0, 0, newAngle);
         }
         else
         {
@@ -34,8 +40,8 @@ public class ServoMotor : MonoBehaviour, IOutputDevice
 
     public void UpdatePinState(int newState)
     {
-        float angle = Map(newState, 0, 255, 0, 180); // Map 0-255 to 0-180 degrees
-        RotateToAngle(angle);
+        float angle = Map(newState, 0, 255, 0, maxDegree); // Map 0-255 to 0-maxDegree
+        RotateByAngle(angle);
     }
 
     private float Map(int value, int fromSource, int toSource, float fromTarget, float toTarget)
