@@ -2,15 +2,15 @@ Shader "Custom/URPStandardVertexColor"
 {
     Properties
     {
-        _BaseColor ("Base Color", Color) = (1,1,1,1)
-        _BaseMap ("Base Map", 2D) = "white" {}
-        _Smoothness ("Smoothness", Range(0,1)) = 0.5
+        _Color ("Main Color", Color) = (1,1,1,1)
+        _MainTex ("Albedo (RGB)", 2D) = "white" {}
+        _Glossiness ("Smoothness", Range(0,1)) = 0.5
         _Metallic ("Metallic", Range(0,1)) = 0.0
         _Transparency ("Transparency", Range(0,1)) = 0.5
     }
     SubShader
     {
-        Tags { "RenderType"="Transparent" "Queue"="Transparent"}
+        Tags { "RenderType"="Transparent" "Queue"="Transparent" }
         LOD 200
 
         Pass
@@ -20,6 +20,7 @@ Shader "Custom/URPStandardVertexColor"
 
             Blend SrcAlpha OneMinusSrcAlpha
             ZWrite Off
+            Cull Off
 
             HLSLPROGRAM
             #pragma vertex Vert
@@ -51,18 +52,20 @@ Shader "Custom/URPStandardVertexColor"
                 float4 color : COLOR;
                 float2 uv : TEXCOORD0;
                 float3 viewDirWS : TEXCOORD1;
-                LIGHT_COORDS
+                float3 worldPos : TEXCOORD2;
+                float3 normalWS : TEXCOORD3;
+                LIGHTING_COORDS(4, 5)
             };
 
             CBUFFER_START(UnityPerMaterial)
-                float4 _BaseColor;
-                half _Smoothness;
+                float4 _Color;
+                half _Glossiness;
                 half _Metallic;
                 half _Transparency;
             CBUFFER_END
 
-            TEXTURE2D(_BaseMap);
-            SAMPLER(sampler_BaseMap);
+            TEXTURE2D(_MainTex);
+            SAMPLER(sampler_MainTex);
 
             Varyings Vert(Attributes IN)
             {
@@ -71,9 +74,11 @@ Shader "Custom/URPStandardVertexColor"
                 OUT.color = IN.color;
                 OUT.uv = IN.uv;
                 OUT.viewDirWS = GetWorldSpaceViewDir(IN.positionOS);
+                OUT.worldPos = TransformObjectToWorld(IN.positionOS);
+                OUT.normalWS = normalize(TransformObjectToWorldNormal(IN.positionOS));
 
                 // Initialize lighting coordinates
-                InitializeStandardLitSurfaceVertex(IN.positionOS, OUT.positionHCS, OUT);
+                TRANSFER_VERTEX_TO_FRAGMENT(IN.positionOS, OUT.positionHCS, OUT);
 
                 return OUT;
             }
@@ -81,20 +86,20 @@ Shader "Custom/URPStandardVertexColor"
             half4 Frag(Varyings IN) : SV_Target
             {
                 // Sample the texture and apply vertex color and base color
-                half4 baseColor = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, IN.uv) * _BaseColor * IN.color;
-                
+                half4 baseColor = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, IN.uv) * _Color * IN.color;
+
                 // Initialize the surface data
                 SurfaceData surfaceData;
-                InitializeStandardLitSurfaceData(IN, surfaceData);
+                InitializeStandardLitSurfaceData(IN.worldPos, IN.normalWS, surfaceData);
                 
                 surfaceData.baseColor = baseColor.rgb;
                 surfaceData.metallic = _Metallic;
-                surfaceData.smoothness = _Smoothness;
+                surfaceData.smoothness = _Glossiness;
                 surfaceData.occlusion = 1.0;
                 surfaceData.alpha = baseColor.a * _Transparency;
 
                 // Compute the final color
-                half4 color = UniversalFragmentBlinnPhong(IN, surfaceData);
+                half4 color = UniversalFragmentBlinnPhong(IN.viewDirWS, surfaceData);
 
                 // Apply fog
                 ApplyFog(IN.positionHCS.z, color);

@@ -96,5 +96,8 @@ public class WireRenderer : MonoBehaviour
         wireColor = Color.HSVToRGB(h, s, v);  // Create a new color with the original saturation and value but new hue
         lineRenderer.startColor = wireColor;
         lineRenderer.endColor = wireColor;
+
+
+        lineRenderer.material.SetColor("_BaseColor", wireColor);
     }
 }

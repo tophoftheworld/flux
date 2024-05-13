@@ -2488,6 +2488,30 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6488825856463802864, guid: 691291a18090ea74ba68183f14c0c13b, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.0000000061890564
+      objectReference: {fileID: 0}
+    - target: {fileID: 6488825856463802864, guid: 691291a18090ea74ba68183f14c0c13b, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.0000000012228061
+      objectReference: {fileID: 0}
+    - target: {fileID: 6488825856463802864, guid: 691291a18090ea74ba68183f14c0c13b, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.0000000028409197
+      objectReference: {fileID: 0}
+    - target: {fileID: 6488825856463802864, guid: 691291a18090ea74ba68183f14c0c13b, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6488825856463802864, guid: 691291a18090ea74ba68183f14c0c13b, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0.000000029802322
+      objectReference: {fileID: 0}
+    - target: {fileID: 6488825856463802864, guid: 691291a18090ea74ba68183f14c0c13b, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -15464,6 +15488,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: JumperWire (2)
       objectReference: {fileID: 0}
+    - target: {fileID: 525425819908451093, guid: 99fb20848cab3634dac7d1691e61ba02, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 831426920314210850, guid: 99fb20848cab3634dac7d1691e61ba02, type: 3}
       propertyPath: m_IsTrigger
       value: 1
@@ -15491,6 +15519,18 @@ PrefabInstance:
     - target: {fileID: 3900840390197394141, guid: 99fb20848cab3634dac7d1691e61ba02, type: 3}
       propertyPath: m_LocalPosition.z
       value: 0.000000002153358
+      objectReference: {fileID: 0}
+    - target: {fileID: 4658619065952861659, guid: 99fb20848cab3634dac7d1691e61ba02, type: 3}
+      propertyPath: wireColor.b
+      value: 0.8962264
+      objectReference: {fileID: 0}
+    - target: {fileID: 4658619065952861659, guid: 99fb20848cab3634dac7d1691e61ba02, type: 3}
+      propertyPath: wireColor.g
+      value: 0.3386436
+      objectReference: {fileID: 0}
+    - target: {fileID: 4658619065952861659, guid: 99fb20848cab3634dac7d1691e61ba02, type: 3}
+      propertyPath: wireColor.r
+      value: 0.13950695
       objectReference: {fileID: 0}
     - target: {fileID: 4877681553535775847, guid: 99fb20848cab3634dac7d1691e61ba02, type: 3}
       propertyPath: m_Parameters.colorGradient.ctime1
