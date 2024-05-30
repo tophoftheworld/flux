@@ -27,7 +27,7 @@ public class ToolSpawner : MonoBehaviour {
     private Dictionary<Tools, GameObject> toolPrefabDict = new Dictionary<Tools, GameObject>();
 
     private GameObject currentToolInstance; // Currently active tool instance
-    private HashSet<PointableUnityEventWrapper> activeInteractions; // Track active interactions
+    private bool toolHasBeenInteractedWith = false; // True if the tool has been interacted with
 
     public Transform spawnPoint; // Position to spawn the tools at
 
@@ -44,17 +44,14 @@ public class ToolSpawner : MonoBehaviour {
                 toolPrefabDict.Add(toolPrefab.toolType, toolPrefab.prefab);
             }
         }
-        activeInteractions = new HashSet<PointableUnityEventWrapper>();
     }
 
     public void SpawnTool(Tools tool) {
         if (toolPrefabDict.ContainsKey(tool) && spawnPoint != null) {
-            if (currentToolInstance != null && activeInteractions.Count == 0) {
-                // No active interactions, safe to replace the tool
-                Destroy(currentToolInstance);
+            if (currentToolInstance != null && !toolHasBeenInteractedWith) {
+                Destroy(currentToolInstance); // Replace tool only if it has not been interacted with
             }
             
-            // Spawn the new tool and assign the component to track interaction
             currentToolInstance = Instantiate(toolPrefabDict[tool], spawnPoint.position, Quaternion.identity);
             SetupInteractionTracking(currentToolInstance);
         } else {
@@ -63,18 +60,14 @@ public class ToolSpawner : MonoBehaviour {
     }
 
     private void SetupInteractionTracking(GameObject tool) {
-        foreach (var wrapper in tool.GetComponentsInChildren<PointableUnityEventWrapper>()) {
-            wrapper.WhenSelect.AddListener(evt => HandleSelect(wrapper));
-            wrapper.WhenUnselect.AddListener(evt => HandleUnselect(wrapper));
+        var wrappers = tool.GetComponentsInChildren<PointableUnityEventWrapper>();
+        if (wrappers.Length > 0) {
+            foreach (var wrapper in wrappers) {
+                wrapper.WhenSelect.AddListener((PointerEvent evt) => toolHasBeenInteractedWith = true);
+            }
+        } else {
+            toolHasBeenInteractedWith = true; // Assume interaction if no wrappers are found
         }
-    }
-
-    private void HandleSelect(PointableUnityEventWrapper wrapper) {
-        activeInteractions.Add(wrapper);
-    }
-
-    private void HandleUnselect(PointableUnityEventWrapper wrapper) {
-        activeInteractions.Remove(wrapper);
     }
 
     public enum Tools {

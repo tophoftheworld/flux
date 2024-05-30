@@ -7,6 +7,8 @@ public class DCMotor : MonoBehaviour, IOutputDevice
     private ArduinoController arduinoController;
     public bool isMoving = false;
 
+    public float speedMultiplier = 1f;
+
     void Start()
     {
         if (pivot == null)
@@ -25,7 +27,7 @@ public class DCMotor : MonoBehaviour, IOutputDevice
         if (isMoving)
         {
             // Rotate the pivot around the Z-axis
-            transform.Rotate(100 * Time.deltaTime, 0, 0);
+            transform.Rotate(100 * speedMultiplier * Time.deltaTime, 0, 0);
         }
     }
 
@@ -37,5 +39,10 @@ public class DCMotor : MonoBehaviour, IOutputDevice
     public void UpdatePinState(int newState)
     {
         Rotate(newState > 0);
+    }
+
+    public void SetSpeedMultiplier(float multiplier)
+    {
+        speedMultiplier = multiplier;
     }
 }
